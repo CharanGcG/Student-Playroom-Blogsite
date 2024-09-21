@@ -4,9 +4,11 @@ const Schema = mongoose.Schema;
 const blogSchema = new Schema({
   title: { type: String, required: true },
   content: { type: String, required: true },
-  writer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Reference to the User model
+  writer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   image: { type: String },
+  category: { type: String, required: true }, 
 }, { timestamps: true });
+
 
 const Blog = mongoose.model('Blog', blogSchema);
 module.exports = Blog;

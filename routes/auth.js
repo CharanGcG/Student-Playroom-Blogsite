@@ -1,31 +1,38 @@
+//Essential imports
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User'); // Your user model
 
+
+//Model imports
+const User = require('../models/User');
 const Blog = require('../models/Blog');
+
+
+//Module imports
 const multer = require('multer');
 const path = require('path');
 
-// Render registration page
+
+
+
+
+
+
+//Registration requests
 router.get('/register', (req, res) => {
   res.render('register', { error: null });
 });
 
-// Handle registration
+
 router.post('/register', async (req, res) => {
   const { name, username, password, email } = req.body;
-
   try {
     const user = new User({ name, username, password, email });
     await user.save();
     req.session.userId = user._id; // Save user ID in session
     res.redirect('/auth/homepage'); // Redirect to homepage
   } 
-  
-  
   catch (error) {
-    
-
     // Handle validation errors customized error validation messages
     if (error.name === 'ValidationError') {
       const errorMessage = Object.values(error.errors).map(err => err.message).join(', ');
@@ -40,14 +47,20 @@ router.post('/register', async (req, res) => {
     }
   }
 });
+//End of Registration requests
 
 
-// Render login page
+
+
+
+
+
+
+//Login Requests
 router.get('/login', (req, res) => {
   res.render('login', { error: null });
 });
 
-// Handle login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -68,9 +81,6 @@ router.post('/login', async (req, res) => {
 });
 
 
-
-
-// Logout route
 router.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -79,8 +89,17 @@ router.get('/logout', (req, res) => {
     res.redirect('/'); // Redirect to home after logout
   });
 });
+//End of Login requests
 
 
+
+
+
+
+
+
+
+//File uploads multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
       cb(null, 'public/images'); // Upload to public/images
@@ -90,7 +109,17 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
+//End of multer file upload
 
+
+
+
+
+
+
+
+
+//Write Blog requests
 router.get('/writeblog', async (req, res) => {
   if (!req.session.userId) {
       return res.redirect('/auth/login');
@@ -100,14 +129,13 @@ router.get('/writeblog', async (req, res) => {
 });
 
 
-
 router.post('/writeblog', upload.single('image'), async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, category } = req.body;
   const writer = req.session.userId;
   const image = req.file ? `/images/${req.file.filename}` : null; // Use uploaded image or default
 
   try {
-      const blog = new Blog({ title, content, writer, image });
+      const blog = new Blog({ title, content, writer, image, category });
       await blog.save();
       res.redirect('/auth/homepage?success=Blog created successfully');
   } catch (error) {
@@ -115,7 +143,15 @@ router.post('/writeblog', upload.single('image'), async (req, res) => {
       res.redirect('/writeblog?error=Error creating blog');
   }
 });
+//End of Write blog requests
 
+
+
+
+
+
+
+//Homepage requests
 router.get('/homepage', async (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/auth/login'); // Redirect if not logged in
@@ -127,12 +163,15 @@ router.get('/homepage', async (req, res) => {
 
   res.render('homepage', { user, blogs }); // Pass user and blogs to the view
 });
+//End of Homepage requests
 
 
 
 
 
-// Profile route
+
+
+// Profile requests
 router.get('/profile', async (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/auth/login'); // Redirect to login if not authenticated
@@ -152,10 +191,15 @@ router.get('/profile', async (req, res) => {
     res.redirect('/auth/homepage'); // Redirect to homepage in case of error
   }
 });
+//End of profile requests
 
 
 
 
+
+
+
+//Individual Blog requests
 router.get('/blog/:id', async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id).populate('writer');
@@ -169,7 +213,78 @@ router.get('/blog/:id', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+//End of individual blog requests
 
 
 
+
+
+
+
+
+
+
+
+//General blogs requests
+router.get('/general', async (req, res)=>{
+  if(!req.session.userId){
+    return res.redirect('auth/login');
+  }
+  const user = await User.findById(req.session.userId);
+  const blogs = await Blog.find({category: 'general'}).populate('writer','username');
+  res.render('general', {user, blogs});
+})
+//End of general blogs requests
+
+
+
+
+
+
+
+//studies blogs requests
+router.get('/studies', async (req, res)=>{
+  if(!req.session.userId){
+    return res.redirect('auth/login');
+  }
+  const user = await User.findById(req.session.userId);
+  const blogs = await Blog.find({category: 'studies'}).populate('writer','username');
+  res.render('studies', {user, blogs});
+})
+//End of studies blogs requests
+
+
+
+
+
+
+//Sports blogs requests
+router.get('/sports', async (req, res)=>{
+  if(!req.session.userId){
+    return res.redirect('auth/login');
+  }
+  const user = await User.findById(req.session.userId);
+  const blogs = await Blog.find({category: 'sports'}).populate('writer','username');
+  res.render('sports', {user, blogs});
+})
+//End of sports blogs requests
+
+
+
+
+
+
+
+//Memenots blogs requests
+router.get('/mementos', async (req, res)=>{
+  if(!req.session.userId){
+    return res.redirect('auth/login');
+  }
+  const user = await User.findById(req.session.userId);
+  const blogs = await Blog.find({category: 'mementos'}).populate('writer','username');
+  res.render('mementos', {user, blogs});
+})
+//End of Mementos blogs requests
+
+//export the router
 module.exports = router;
