@@ -20,11 +20,27 @@ router.post('/register', async (req, res) => {
     await user.save();
     req.session.userId = user._id; // Save user ID in session
     res.redirect('/auth/homepage'); // Redirect to homepage
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.render('register', { error: 'Registration failed. Please try again.' });
+  } 
+  
+  
+  catch (error) {
+    
+
+    // Handle validation errors customized error validation messages
+    if (error.name === 'ValidationError') {
+      const errorMessage = Object.values(error.errors).map(err => err.message).join(', ');
+      res.render('register', { error: `Validation failed: ${errorMessage}` });
+    } 
+    // Handle duplicate key errors
+    else if (error.code === 11000) { // MongoDB duplicate key error code
+      const field = Object.keys(error.keyValue)[0]; // Get the field causing the error
+      res.render('register', { error: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists.` });
+    } else {
+      res.render('register', { error: 'Registration failed. Please try again.' });
+    }
   }
 });
+
 
 // Render login page
 router.get('/login', (req, res) => {
@@ -37,8 +53,11 @@ router.post('/login', async (req, res) => {
 
   try {
     const user = await User.findOne({ username });
-    if (!user || !(await user.isPasswordValid(password))) {
-      return res.render('login', { error: 'Invalid username or password.' });
+    if (!user) {
+      return res.render('login', { error: 'Invalid username' });
+    }
+    if(user && !(await user.isPasswordValid(password))){
+      return res.render('login', { error: 'Incorrect Password'})
     }
     req.session.userId = user._id; // Save user ID in session
     res.redirect('/auth/homepage'); // Redirect to homepage
