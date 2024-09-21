@@ -6,34 +6,67 @@
     <title><%= blog.title %></title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        body {
+            background-color: #f8f9fa;
+        }
         .blog-container {
-            margin-top: 40px;
+            margin-top: 60px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
-
         .blog-title {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: bold;
+            color: #343a40;
+            text-align: center;
         }
-
-        .blog-content {
-            margin-top: 20px;
+        .blog-meta {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: #6c757d;
+            text-align: center;
         }
-
+        .blog-author {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .blog-time {
+            color: #6c757d;
+        }
         .blog-image {
             max-width: 100%;
             height: auto;
             border-radius: 10px;
+            margin: 20px 0;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .blog-content {
+            margin-top: 30px;
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: #343a40;
+            text-align: justify;
+        }
+        .like-btn {
             margin-top: 20px;
         }
-
-        .blog-meta {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: #555;
+        .comments-section {
+            margin-top: 40px;
         }
-
-        .blog-author {
+        .comment {
+            border-bottom: 1px solid #e9ecef;
+            padding: 10px 0;
+        }
+        .comment-author {
             font-weight: bold;
+        }
+        .comment-time {
+            color: #6c757d;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -79,10 +112,41 @@
         <div class="blog-content">
             <p><%= blog.content %></p>
         </div>
-        
+
+        <!-- Like Button and Like Count -->
+<div class="like-btn">
+    <form action="/auth/blog/<%= blog._id %>/like" method="POST"> <!-- Change here -->
+        <button type="submit" class="btn btn-success">Like (<%= blog.likes %>)</button>
+    </form>
+</div>
+
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <h3>Comments (<%= blog.comments.length %>)</h3>
+            <% blog.comments.forEach(comment => { %>
+                <div class="comment">
+                    <p class="comment-author"><%= comment.user.username %>:</p>
+                    <p class="comment-content"><%= comment.content %></p>
+                    <p class="comment-time"><%= new Date(comment.createdAt).toLocaleDateString() %></p>
+                </div>
+            <% }) %>
+        </div>
+
+        <!-- Comment Form -->
+<form action="/auth/blog/<%= blog._id %>/comment" method="POST" class="mt-4"> <!-- Change here -->
+    <div class="form-group">
+        <textarea class="form-control" name="comment" rows="3" placeholder="Add a comment..." required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Submit Comment</button>
+</form>
+
+
+        <!-- Back to Homepage Button -->
         <a href="/" class="btn btn-primary mt-4">Back to Homepage</a>
     </div>
 
+    <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

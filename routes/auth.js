@@ -135,7 +135,7 @@ router.post('/writeblog', upload.single('image'), async (req, res) => {
   const image = req.file ? `/images/${req.file.filename}` : null; // Use uploaded image or default
 
   try {
-      const blog = new Blog({ title, content, writer, image, category });
+      const blog = new Blog({ title, content, writer, image, category, likes:0, comments:[] });
       await blog.save();
       res.redirect('/auth/homepage?success=Blog created successfully');
   } catch (error) {
@@ -200,12 +200,20 @@ router.get('/profile', async (req, res) => {
 
 
 //Individual Blog requests
+// Combined Blog Details Route (for both like and individual blog display)
 router.get('/blog/:id', async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id).populate('writer');
+    const blog = await Blog.findById(req.params.id)
+      .populate('writer') // Populate the writer field
+      .populate({
+        path: 'comments.user', // Populate user field in comments
+        model: 'User' // Specify the model to populate
+      });
+
     if (!blog) {
       return res.status(404).send('Blog not found');
     }
+
     const user = await User.findById(req.session.userId); // Get the logged-in user
     res.render('blogDetails', { blog, user }); // Pass both blog and user
   } catch (err) {
@@ -213,6 +221,8 @@ router.get('/blog/:id', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
 //End of individual blog requests
 
 
@@ -285,6 +295,83 @@ router.get('/mementos', async (req, res)=>{
   res.render('mementos', {user, blogs});
 })
 //End of Mementos blogs requests
+
+
+
+
+
+
+
+
+
+//Like requests
+// Route to display a specific blog post
+// POST request to like a blog
+router.post('/blog/:id/like', async (req, res) => {
+  const blogId = req.params.id;
+  const userId = req.session.userId;
+
+  try {
+      const blog = await Blog.findById(blogId);
+
+      if (!blog) {
+          return res.status(404).send('Blog not found');
+      }
+
+      // Initialize likedBy if undefined
+      if (!blog.likedBy) {
+          blog.likedBy = [];
+      }
+
+      // Check if the user has already liked the blog
+      if (!blog.likedBy.includes(userId)) {
+          blog.likes += 1;
+          blog.likedBy.push(userId); // Keep track of users who liked the blog
+          await blog.save();
+      }
+
+      res.redirect(`/auth/blog/${blogId}`);
+  } catch (error) {
+      console.error('Error liking blog:', error);
+      res.status(500).send('Internal Server Error');
+  }
+});
+//End of likes requests
+
+
+
+
+
+
+
+//Comments requests
+// Route to add a comment to a blog post
+router.post('/blog/:id/comment', async (req, res) => {
+  const blogId = req.params.id;
+  const userId = req.session.userId;
+  const { comment } = req.body; // Ensure this matches your form input name
+
+  try {
+      const blog = await Blog.findById(blogId);
+
+      if (!blog) {
+          return res.status(404).send('Blog not found');
+      }
+
+      // Push a valid comment object
+      blog.comments.push({ user: userId, content: comment });
+
+      await blog.save();
+
+      res.redirect(`/auth/blog/${blogId}`);
+  } catch (error) {
+      console.error('Error adding comment:', error);
+      res.status(500).send('Internal Server Error');
+  }
+});
+
+
+//End of comments request
 
 //export the router
 module.exports = router;
