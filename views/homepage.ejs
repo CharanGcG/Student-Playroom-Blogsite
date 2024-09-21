@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .blog-post {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .blog-post img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover; /* Ensures image fits the square dimension */
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+
+        .blog-details {
+            flex: 1;
+        }
+
+        .blog-details h2 {
+            margin-top: 0;
+        }
+
+        .blog-details .blog-content {
+            margin-bottom: 10px;
+        }
+
+        .blog-details .blog-time {
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Student Playroom</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/writeblog">Write Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/profile">Profile</a>
+                    </li>
+                </ul>
+                <span class="navbar-text">
+                    Welcome, <%= user ? user.username : 'Guest' %>!
+                </span>
+                <% if (user) { %>
+                    <a class="btn btn-outline-light ms-2" href="/auth/logout">Logout</a>
+                <% } else { %>
+                    <a class="btn btn-outline-light ms-2" href="/auth/login">Login</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Welcome to the Student Blog Homepage!</h1>
+
+        <div id="blogs-container">
+            <% if (blogs.length > 0) { %>
+                <% blogs.forEach(blog => { %>
+                    <div class="blog-post">
+                        <img src="<%= blog.image || '/images/favicon.ico' %>" alt="Blog Image">
+                        <div class="blog-details">
+                            <h2><%= blog.title %></h2>
+                            <p><strong>By: <%= blog.writer.username %></strong></p>
+                            <p class="blog-content"><%= blog.content.substring(0, 100) + '...' %></p>
+                            <p class="blog-time">Posted on: <%= new Date(blog.createdAt).toLocaleString() %></p>
+                            <a href="/auth/blog/<%= blog._id %>" class="btn btn-primary">Read more</a>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p>No blogs available at the moment.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

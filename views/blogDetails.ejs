@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= blog.title %></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .blog-container {
+            margin-top: 40px;
+        }
+
+        .blog-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .blog-content {
+            margin-top: 20px;
+        }
+
+        .blog-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .blog-meta {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .blog-author {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar Section -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Student Playroom</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/writeblog">Write Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/profile">Profile</a>
+                    </li>
+                </ul>
+                <span class="navbar-text">
+                    Welcome, <%= user ? user.username : 'Guest' %>!
+                </span>
+                <% if (user) { %>
+                    <a class="btn btn-outline-light ms-2" href="/auth/logout">Logout</a>
+                <% } else { %>
+                    <a class="btn btn-outline-light ms-2" href="/auth/login">Login</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Blog Details Section -->
+    <div class="container blog-container">
+        <h1 class="blog-title"><%= blog.title %></h1>
+        <p class="blog-meta">
+            <span class="blog-author">By: <%= blog.writer.username %></span>
+            <span class="blog-time"> | Posted on: <%= new Date(blog.createdAt).toLocaleDateString() %></span>
+        </p>
+
+        <% if (blog.image) { %>
+            <img src="<%= blog.image %>" alt="Blog Image" class="blog-image">
+        <% } %>
+
+        <div class="blog-content">
+            <p><%= blog.content %></p>
+        </div>
+        
+        <a href="/" class="btn btn-primary mt-4">Back to Homepage</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

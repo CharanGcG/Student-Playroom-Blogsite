@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Write Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .preview-container {
+            margin-top: 15px;
+        }
+
+        .preview-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Student Playroom</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/writeblog">Write Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/profile">Profile</a>
+                    </li>
+                </ul>
+                <span class="navbar-text">
+                    Welcome, <%= user ? user.username : 'Guest' %>!
+                </span>
+                <% if (user) { %>
+                    <a class="btn btn-outline-light ms-2" href="/auth/logout">Logout</a>
+                <% } else { %>
+                    <a class="btn btn-outline-light ms-2" href="/auth/login">Login</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Write Blog Form -->
+    <div class="container form-container">
+        <h1 class="text-center">Write a New Blog</h1>
+        <p class="text-center text-danger">Note: Please upload an image of size 1080x1080 pixels.</p>
+
+        <form action="/auth/writeblog" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Image (optional):</label>
+                <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                <div class="preview-container">
+                    <img id="preview" class="preview-image" alt="Image Preview">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="content">Content:</label>
+                <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </form>
+
+        <p class="text-center mt-3"><a href="/auth/homepage">Go back</a></p>
+    </div>
+
+    <script>
+        // Preview uploaded image
+        function previewImage(event) {
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
